@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Webcam Photo Capture</title>
+    <style>
+      body {
+        text-align: center;
+      }
+
+      #video {
+        display: none;
+      }
+
+      #canvas {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Webcam Photo Capture</h1>
+    <p>Double-tap anywhere on the page to capture a photo.</p>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <div id="image-container"></div>
+
+    <script>
+      
+      console.log("1");
+      let videoStream;
+      const videoElement = document.getElementById("video");
+      const canvasElement = document.getElementById("canvas");
+
+      // Check if the browser supports getUserMedia API
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(function (stream) {
+            videoElement.srcObject = stream;
+            videoStream = stream;
+            console.log("2");
+          })
+          .catch(function (error) {
+            console.error("Error accessing webcam:", error);
+          });
+      } else {
+        console.error("getUserMedia is not supported by this browser.");
+      }
+
+      // Capture photo on double tap event
+      document.addEventListener("dblclick", capturePhoto);
+
+      function capturePhoto() {
+        console.log("\n\nNAMASTE\n\n")
+        if (videoStream) {
+          console.log("3");
+          const context = canvasElement.getContext("2d");
+          context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+          console.log("\n\nhii\n")
+          canvasElement.toBlob(function (blob) {
+            // Create a FormData object and append the image file
+            const formData = new FormData();
+            formData.append("data", blob, "webcam_capture.jpg");
+            
+            console.log("\n\nHELLO\n\n\n")
+            // Send the FormData object to the API
+            fetch("http://127.0.0.1:5000/predict", {
+              method: "POST",
+              body: formData,
+            })
+              .then(function (response) {
+                if (response.ok) {
+                  console.log("4");
+                  console.log("Image uploaded successfully!");
+                  let text = "";
+                  response.text().then(function (body) {
+                    text = body;
+                    console.log(body);
+                    console.log(text)
+                    let utterance = new SpeechSynthesisUtterance(text);
+                    speechSynthesis.speak(utterance);
+                  });
+                } else {
+                  console.error("Image upload failed.");
+                }
+              })
+              .catch(function (error) {
+                console.error("Error uploading image:", error);
+              })
+              .then(function () {
+                console.log("5");
+                const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+                // Create a new image element
+                var image = document.createElement("img");
+
+                // Set the source and alt attributes of the image
+                image.src = "../static/images/image.jpg";
+                image.alt = "Image with Bounding boxes";
+
+                // Get the container element
+                var container = document.getElementById("image-container");
+
+                // Append the image element to the container
+                container.appendChild(image);
+              });
+          }, "image/jpeg");
+        }
+      }
+    </script>
+  </body>
+</html>

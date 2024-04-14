@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Upload</title>
+    <!-- Add your CSS styles here -->
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #333333;
+        text-align: center;
+        margin-top: 0;
+      }
+
+      form {
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+        max-width: 400px;
+      }
+
+      input[type="file"] {
+        display: none;
+      }
+
+      .file-input-label {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .file-input-label:hover {
+        background-color: #45a049;
+      }
+
+      .file-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .file-input-wrapper input[type="file"] {
+        font-size: 100px;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+      }
+
+      h2 {
+        color: #333333;
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      img {
+        display: block;
+        max-width: 100%;
+        margin-top: 10px;
+      }
+
+      .img-container {
+        display: flex;
+        justify-content: center;
+      }
+
+      input[type="submit"] {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 16px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #45a049;
+      }
+
+      #selected-file {
+        margin-top: 10px;
+        color: #333333;
+        font-style: italic;
+      }
+    </style>
+</head>
+<body>
+    <h1>Image Upload Form</h1>
+
+    <!-- Your existing form for image upload -->
+    <form id="upload-form" action="/predict" method="POST" enctype="multipart/form-data">
+        <!-- Your existing input field for file upload -->
+        <div class="file-input-wrapper">
+            <label class="file-input-label" for="image-upload">Choose File</label>
+            <input id="image-upload" type="file" name="data" onchange="displayFilename()" />
+        </div>
+        <div id="selected-file"></div>
+        <br />
+        <input type="submit" value="Upload" />
+    </form>
+
+    <!-- Empty div to display output image -->
+    <div id="output-image-container"></div>
+
+    <!-- Script for handling output image and voice -->
+    <script>
+        function displayOutputImage() {
+            // Create a new image element
+            var image = document.createElement("img");
+
+            // Set the source and alt attributes of the image
+            image.src = "../static/images/output_image.jpg";
+            image.alt = "Output Image with Bounding Boxes";
+
+            // Get the container element
+            var container = document.getElementById("output-image-container");
+
+            // Clear previous content
+            container.innerHTML = "";
+
+            // Append the image element to the container
+            container.appendChild(image);
+        }
+
+        function speakOutput(text) {
+            let utterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(utterance);
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // When the DOM is loaded, display the output image
+            displayOutputImage();
+
+            // Fetch the response text from the server and speak it
+            fetch("/predict")
+                .then(response => response.text())
+                .then(text => {
+                    speakOutput(text);
+                })
+                .catch(error => {
+                    console.error("Error fetching response:", error);
+                });
+        });
+    </script>
+</body>
+</html>

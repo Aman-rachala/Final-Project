@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Image Upload</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333333;
+      text-align: center;
+      margin-top: 0;
+    }
+
+    form {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 20px auto;
+      max-width: 400px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-input-label {
+      background-color: #2AAED1;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .file-input-label:hover {
+      background-color: #45a049;
+    }
+
+    .file-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+    }
+
+    h2 {
+      color: #333333;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      margin-top: 10px;
+    }
+
+    .img-container {
+      display: flex;
+      justify-content: center;      
+    }
+
+    input[type="submit"] {
+      background-color: #2AAED1;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #2AAED1;
+    }
+
+    input[type="button"]{
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #selected-file {
+      margin-top: 10px;
+      color: #333333;
+      font-style: italic;
+    }
+  </style>  
+</head>
+
+<body>
+  <h1>Image Upload Form</h1>
+
+  <form action="/predict" method="POST" enctype="multipart/form-data" id="myform">
+    <div class="file-input-wrapper">
+      <label class="file-input-label" for="image-upload">Choose File</label>
+      <input id="image-upload" type="file" name="data" onchange="displayFilename()" />
+    </div>
+    <div id="selected-file"></div>
+    <br />
+    <input type="button" value="Upload" onclick="photo()" /> <!-- Change input type to button -->
+  </form>
+  <form action="/restart" method="post">
+    <input type="submit" value="Restart Server">
+  </form>
+  <div class="img-container" id = "image-container2"></div>
+  <div class="img-container" id = "image-container">
+    <!-- <h1>HI</h1> -->
+  </div>
+  <!-- {% if 'data' in request.files %}
+  <h2>Uploaded Image:</h2>
+  <div class="img-container">
+     <img src="{{ url_for('static', filename='uploaded_image.jpg') }}" alt="Uploaded Image" /> -->
+  <!-- </div> -->
+  <!-- {% endif %} -->
+  <script>
+    
+    // Your JavaScript code here
+    function displayFilename() {
+      const fileInput = document.getElementById("image-upload");
+      const selectedFile = document.getElementById("selected-file");
+
+      if (fileInput.files.length > 0) {
+        selectedFile.textContent = "Selected File: " + fileInput.files[0].name;
+      } else {
+        selectedFile.textContent = "";
+      }
+    }
+    function photo() {
+      console.log(1);
+      const fileInput = document.getElementById("image-upload");
+      const file = fileInput.files[0]; // Get the uploaded file
+
+      if (file) {
+        const reader = new FileReader(); // Create a FileReader object
+
+        // Read the uploaded file as a data URL
+        reader.readAsDataURL(file);
+
+        reader.onload = function () {
+          const imageDataUrl = reader.result; // Get the data URL of the uploaded image
+          const img = new Image(); // Create a new Image object
+
+          img.onload = function () {
+            // Create a canvas element to draw the image
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+
+            // Set the canvas dimensions to match the image
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Draw the image onto the canvas
+            context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Convert the canvas content to a Blob object
+            canvas.toBlob(function (blob) {
+              // Create a FormData object and append the image file
+              const formData = new FormData();
+              formData.append("data", blob, file.name);
+
+              // Send the FormData object to the server
+              fetch("http://127.0.0.1:5000/predict", {
+                method: "POST",
+                body: formData,
+              })
+                .then(function (response) {
+                  if (response.ok) {
+                    console.log("Image uploaded successfully!");
+                    let text = "";
+                    response.text().then(function (body) {
+                      console.log(2);
+                      text = body;
+                      console.log(body);
+                      console.log(text)
+                      let utterance = new SpeechSynthesisUtterance(text);
+                      speechSynthesis.speak(utterance);
+                    });
+                  } else {
+                    console.error("Image upload failed.");
+                  }
+                })
+                .catch(function (error) {
+                  console.error("Error uploading image:", error);
+                })
+                .then(function () {
+                  print("Hello myaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaan!!!!!!!!")
+                const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+                // Create a new image element
+                var image = document.createElement("img");
+
+                // Set the source and alt attributes of the image
+                image.src = "../static/images/image.jpg";
+                image.alt = "Image with Bounding boxes";
+                
+                var image2 = document.createElement("img");
+                
+                image2.src = "../static/uploaded_image.jpg";
+                image2.alt = "Image without Bounding boxes";
+                // Get the container element
+                var container2 = document.getElementById("image-container2");
+                var container = document.getElementById("image-container");
+                console.log(3);
+                // Append the image element to the container
+                container2.appendChild(image2);
+                container.appendChild(image);
+
+                console.log(10);
+                document.getElementById("myform").reset()
+              });
+            }, "image/jpeg");
+          };
+
+          img.src = imageDataUrl; // Set the source of the image
+        };
+      }
+      
+      // document.getElementById("image-upload").value = "";
+    }
+    
+    
+  </script>
+</body>
+
+</html>
