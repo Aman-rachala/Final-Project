@@ -122,16 +122,33 @@ def predict(priority_list=[]):
     print(f"The priority list is: \n{priority_list}")
     print("-" * 20)
 
+    height, width = img.shape[-2], img.shape[-1]
+    print("Height:", height)
+    print("Width:", width)
+    print("Image: ", img)
+
+    # regions = {
+    #     "Top-Left": (-width // 3, height // 3, -width // 6, height // 2),
+    #     "Top-Center": (-width // 6, height // 3, width // 6, height // 2),
+    #     "Top-Right": (width // 6, height // 3, width // 3, height // 2),
+    #     "Middle-Left": (-width // 3, -height // 6, -width // 6, height // 3),
+    #     "Middle-Center": (-width // 6, -height // 6, width // 6, height // 3),
+    #     "Middle-Right": (width // 6, -height // 6, width // 3, height // 3),
+    #     "Bottom-Left": (-width // 3, -height // 3, -width // 6, -height // 6),
+    #     "Bottom-Center": (-width // 6, -height // 3, width // 6, -height // 6),
+    #     "Bottom-Right": (width // 6, -height // 3, width // 3, -height // 6),
+    # }
+
     regions = {
-        "Top-Left": (-width // 3, height // 3, -width // 6, height // 2),
-        "Top-Center": (-width // 6, height // 3, width // 6, height // 2),
-        "Top-Right": (width // 6, height // 3, width // 3, height // 2),
-        "Middle-Left": (-width // 3, -height // 6, -width // 6, height // 3),
-        "Middle-Center": (-width // 6, -height // 6, width // 6, height // 3),
-        "Middle-Right": (width // 6, -height // 6, width // 3, height // 3),
-        "Bottom-Left": (-width // 3, -height // 3, -width // 6, -height // 6),
-        "Bottom-Center": (-width // 6, -height // 3, width // 6, -height // 6),
-        "Bottom-Right": (width // 6, -height // 3, width // 3, -height // 6),
+        "Top-Left": (-960, 180, -280, 920),
+        "front but at a high level": (-280, 180, 280, 920),
+        "Top-Right": (280, 180, 960, 920),
+        "Left": (-960, -180, -280, 180),
+        "Front": (-280, -180, 280, 180),
+        "Right": (280, -180, 960, 180),
+        "Bottom-Left": (-960, -920, -280, -180),
+        "Front but at Low Level": (-280, -920, 280, -180),
+        "Bottom-Right": (280, -920, 960, -180),
     }
 
 

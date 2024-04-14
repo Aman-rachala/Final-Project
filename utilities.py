@@ -247,6 +247,18 @@ def get_image_region(point, height, width, regions):
     #     "Bottom-Right": (width // 2, 0, width, height // 2),
     # }
 
+    # regions = {
+    #     "Top-Left": (-960, 180, -280, 920),
+    #     "front but at a high level": (-280, 180, 280, 920),
+    #     "Top-Right": (280, 180, 960, 920),
+    #     "Left": (-960, -180, -280, 180),
+    #     "Front": (-280, -180, 280, 180),
+    #     "Right": (280, -180, 960, 180),
+    #     "Bottom-Left": (-960, -920, -280, -180),
+    #     "Front but at Low Level": (-280, -920, 280, -180),
+    #     "Bottom-Right": (280, -920, 960, -180),
+    # }
+
     # Iterate through the regions and check if the point falls within any of them
     for region, (x1, y1, x2, y2) in regions.items():
         if x1 <= x <= x2 and y1 <= y <= y2:
